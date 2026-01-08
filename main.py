@@ -1,64 +1,56 @@
-# Wireless Morse code transmitter / receiver
-# Press A for dot, press B for dash
-# based on http://microbit-micropython.readthedocs.io/en/latest/tutorials/network.html
+radio.set_group(17)
 
-import microbit
-from microbit import *
-import music
-import radio
-
-radio.config(group=17)
-radio.on()
-
-# durations made a bit shorter than 250ms for a dot
-# durations made a bit shorter than 500ms for a dash
-DOT_DURATION = 230
-DASH_DURATION = 470
-
-# detect a new letter if incoming signal is greater than 1000ms.
+message = ""
+last_time = input.running_time()
 LETTER_THRESHOLD = 1000
 
-# Holds the translated Morse as characters.
-message = ""
-# The time from which the device has been waiting for the next event.
-started_to_wait = running_time()
+
+def send_dot():
+    radio.send_string(".")
+    music.play_tone(1200, 200)
+    basic.show_string(".")
+    basic.clear_screen()
 
 
-while True:
-    # Work out how long the device has been waiting for a keypress.
-    waiting = running_time() - started_to_wait
-    signal = radio.receive()
-    # Button presses for sending a message
-    if button_a.is_pressed():
-        display.show(".")
-        radio.send(".")
-        music.pitch(1200, duration=DOT_DURATION, wait=True)
-        sleep(50)  # little sleep added to debounce
-        display.clear()
-    elif button_b.is_pressed():
-        display.show("-")
-        radio.send("-")
-        music.pitch(1200, duration=DASH_DURATION, wait=True)
-        sleep(50)  # little sleep added to debounce
-        display.clear()
-    # Listen out for dashes and dots over radio
-    if signal:
-        if signal == ".":
-            pin0.write_digital(1)
-            sleep(500)
-            pin0.write_digital(0)
-            message += "."
-        elif signal == "-":
-            pin0.write_digital(1)
-            sleep(500)
-            pin0.write_digital(0)
-            message += "-"
-        # We've received a signal, so reset waiting time
-        started_to_wait = running_time()
-    # Finally, if micro:bit was shaken while all the above was going on...
-    if pin_logo.is_touched():
-        # ... display the message on LEDs and serial console
-        print(message)
-        display.scroll(message)
-        # then reset it to empty (ready for a new message).
-        message = ""
+def send_dash():
+    radio.send_string("-")
+    music.play_tone(1200, 400)
+    basic.show_string("-")
+    basic.clear_screen()
+
+
+def on_button_a():
+    send_dot()
+
+input.on_button_pressed(Button.A, on_button_a)
+
+
+def on_button_b():
+    send_dash()
+
+input.on_button_pressed(Button.B, on_button_b)
+
+
+def on_received(received):
+    global message, last_time
+    message += received
+    last_time = input.running_time()
+
+radio.on_received_string(on_received)
+
+
+def forever():
+    global message, last_time
+    if input.running_time() - last_time > LETTER_THRESHOLD and len(message) > 0:
+        message += " "
+        last_time = input.running_time()
+
+basic.forever(forever)
+
+
+def on_logo_pressed():
+    global message
+    basic.show_string(message)
+    message = ""
+
+input.on_logo_event(TouchButtonEvent.PRESSED, on_logo_pressed)
