@@ -20,14 +20,20 @@ def send_dash():
 
 
 def on_button_a():
+    # Turn on LED on P0
+    pins.digital_write_pin(DigitalPin.P0, 1)
     send_dot()
-
+    basic.pause(200)
+    pins.digital_write_pin(DigitalPin.P0, 0)
 input.on_button_pressed(Button.A, on_button_a)
 
 
 def on_button_b():
+    # Turn on LED on P1
+    pins.digital_write_pin(DigitalPin.P1, 1)
     send_dash()
-
+    basic.pause(400)
+    pins.digital_write_pin(DigitalPin.P1, 0)
 input.on_button_pressed(Button.B, on_button_b)
 
 

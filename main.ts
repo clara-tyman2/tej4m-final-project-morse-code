@@ -17,10 +17,18 @@ function send_dash() {
 }
 
 input.onButtonPressed(Button.A, function on_button_a() {
+    //  Turn on LED on P0
+    pins.digitalWritePin(DigitalPin.P0, 1)
     send_dot()
+    basic.pause(200)
+    pins.digitalWritePin(DigitalPin.P0, 0)
 })
 input.onButtonPressed(Button.B, function on_button_b() {
+    //  Turn on LED on P1
+    pins.digitalWritePin(DigitalPin.P1, 1)
     send_dash()
+    basic.pause(400)
+    pins.digitalWritePin(DigitalPin.P1, 0)
 })
 radio.onReceivedString(function on_received(received: string) {
     
