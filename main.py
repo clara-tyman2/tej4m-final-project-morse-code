@@ -25,6 +25,7 @@ def on_button_a():
     send_dot()
     basic.pause(200)
     pins.digital_write_pin(DigitalPin.P0, 0)
+
 input.on_button_pressed(Button.A, on_button_a)
 
 
@@ -34,13 +35,27 @@ def on_button_b():
     send_dash()
     basic.pause(400)
     pins.digital_write_pin(DigitalPin.P1, 0)
+
 input.on_button_pressed(Button.B, on_button_b)
 
 
 def on_received(received):
     global message, last_time
+
+    # Store the received symbol
     message += received
     last_time = input.running_time()
+
+    # LED feedback when RECEIVING Morse
+    if received == ".":
+        pins.digital_write_pin(DigitalPin.P0, 1)
+        basic.pause(200)
+        pins.digital_write_pin(DigitalPin.P0, 0)
+
+    elif received == "-":
+        pins.digital_write_pin(DigitalPin.P1, 1)
+        basic.pause(400)
+        pins.digital_write_pin(DigitalPin.P1, 0)
 
 radio.on_received_string(on_received)
 

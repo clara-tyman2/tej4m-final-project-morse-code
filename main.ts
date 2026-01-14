@@ -32,8 +32,20 @@ input.onButtonPressed(Button.B, function on_button_b() {
 })
 radio.onReceivedString(function on_received(received: string) {
     
+    //  Store the received symbol
     message += received
     last_time = input.runningTime()
+    //  LED feedback when RECEIVING Morse
+    if (received == ".") {
+        pins.digitalWritePin(DigitalPin.P0, 1)
+        basic.pause(200)
+        pins.digitalWritePin(DigitalPin.P0, 0)
+    } else if (received == "-") {
+        pins.digitalWritePin(DigitalPin.P1, 1)
+        basic.pause(400)
+        pins.digitalWritePin(DigitalPin.P1, 0)
+    }
+    
 })
 basic.forever(function forever() {
     
